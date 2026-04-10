@@ -1,6 +1,11 @@
 ---
 name: rulespec
-description: Create and manage business rules as structured data that compile into LLM-ready prompts and SKILL.md files for AI agents. Use when the user wants to define, organize, validate, or compile business rules, policies, or constraints.
+description: >
+  Define, manage, and compile business rules as structured YAML data into LLM-ready prompts and agent-loadable SKILL.md files.
+  Use when the user wants to create business rules, define policies, set guardrails, enforce constraints, add compliance rules,
+  manage refund policies, escalation rules, approval thresholds, SLA requirements, content moderation rules, or any operational
+  policy an AI agent should follow. Also use when the user says "add a rule", "create a policy", "set a constraint",
+  "define guardrails", or asks about rulespec, rulespec.yaml, or business rule management.
 ---
 
 # rulespec
