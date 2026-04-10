@@ -1,5 +1,5 @@
 {
-  "name": "rulekit",
+  "name": "rulespec",
   "version": "0.1.0",
   "description": "Business rules as structured data, compiled into LLM-ready markdown prompts",
   "type": "module",
@@ -12,6 +12,7 @@
     }
   },
   "bin": {
+    "rulespec": "./dist/cli.js",
     "rulekit": "./dist/cli.js"
   },
   "files": [
@@ -33,6 +34,12 @@
     "markdown"
   ],
   "license": "MIT",
+  "author": "pallaoro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pallaoro/rulespec"
+  },
+  "homepage": "https://github.com/pallaoro/rulespec#readme",
   "dependencies": {
     "yaml": "^2.7.0"
   },
