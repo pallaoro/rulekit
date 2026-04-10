@@ -1,18 +1,18 @@
-# rulekit
+# rulespec
 
 *Once upon a time, business rules lived in the heads of domain experts. Then they were written in Word documents no one read. Then they were copy-pasted into LLM prompts by engineers who half-understood them, broke when anyone iterated, and drifted from reality within weeks. One day someone said: what if business rules were data, and prompts were compiled, not written? This repo is that idea. -@pallaoro, March 2026*
 
-The idea: business rules change constantly. Prompts shouldn't be hand-edited every time a policy updates. **rulekit** is a standard format for expressing business rules as structured data, and a compiler that turns them into LLM-ready prompts — or RULES.md files that AI agents load directly.
+The idea: business rules change constantly. Prompts shouldn't be hand-edited every time a policy updates. **rulespec** is a standard format for expressing business rules as structured data, and a compiler that turns them into LLM-ready prompts — or RULES.md files that AI agents load directly.
 
 You change the rule, recompile, and only that prompt changes. Everything else stays untouched. The rules are owned by business people. The prompt strategy is owned by engineers. They version independently.
 
 ## How it works
 
-A rulekit file is deliberately simple. Business rules are data, not prose buried in a system prompt:
+A rulespec file is deliberately simple. Business rules are data, not prose buried in a system prompt:
 
 ```yaml
-# rulekit.yaml
-schema: rulekit/v1
+# rulespec.yaml
+schema: rulespec/v1
 domain: "invoice processing"
 
 sources:
@@ -103,12 +103,12 @@ Examples serve two purposes: they're the acceptance tests for evaluation, and th
 
 ## Two outputs
 
-rulekit compiles to two formats:
+rulespec compiles to two formats:
 
 ### 1. Compiled prompts (for injection into LLM calls)
 
 ```bash
-rulekit compile
+rulespec compile
 ```
 
 ```markdown
@@ -127,7 +127,7 @@ After processing decision: Address the submitter by first name in confirmation m
 ### 2. RULES.md (for AI agents)
 
 ```bash
-rulekit emit
+rulespec emit
 ```
 
 Generates a `rules/{domain}/RULES.md` file that agents load directly — like AGENT.md for identity or TOOLS.md for capabilities, RULES.md is for business policy:
@@ -149,7 +149,7 @@ Each RULES.md has YAML frontmatter for progressive disclosure (agents read name 
 name: invoice-processing
 description: Business rules for invoice processing. 3 rules: Duplicate Check, Approval Threshold, Greeting.
 type: rules
-schema: rulekit/v1
+schema: rulespec/v1
 ---
 
 ## Sources
@@ -201,10 +201,10 @@ workspace/
 
 ### Keeping examples separate
 
-Examples contain real business data. They never go into RULES.md by default — they stay in the rulekit.yaml source file for local evaluation only:
+Examples contain real business data. They never go into RULES.md by default — they stay in the rulespec.yaml source file for local evaluation only:
 
 ```
-rulekit.yaml            # source of truth (rules + sources + examples)
+rulespec.yaml            # source of truth (rules + sources + examples)
 rules/
   invoice-processing/
     RULES.md            # emitted for agent consumption (no examples)
@@ -213,56 +213,56 @@ rules/
 To include examples in the emitted RULES.md (e.g. for demonstration purposes):
 
 ```bash
-rulekit emit --include-examples true
+rulespec emit --include-examples true
 ```
 
 ## Quick start
 
 ```bash
 # 1. Install
-npm install -g rulekit
+npm install -g rulespec
 
-# 2. Initialize a rulekit file
-rulekit init
+# 2. Initialize a rulespec file
+rulespec init
 
 # 3. Add rules
-rulekit add --id "refund-window" \
+rulespec add --id "refund-window" \
   --rule "Refunds allowed within 30 days for unused items" \
   --context "Customer asks about returns" \
   --intent enforce
 
 # 4. Compile to prompts
-rulekit compile
+rulespec compile
 
 # 5. Emit RULES.md for agents
-rulekit emit
+rulespec emit
 ```
 
 ## CLI commands
 
 ```
-rulekit init                        Create a rulekit.yaml in the current directory
-rulekit add                         Add a new rule
-rulekit remove <id>                 Remove a rule by id
-rulekit list                        List all rules
-rulekit compile [id]                Regenerate prompts and print markdown to stdout
-rulekit validate                    Validate the rulekit file
-rulekit emit                        Generate rules/{domain}/RULES.md for agents
+rulespec init                        Create a rulespec.yaml in the current directory
+rulespec add                         Add a new rule
+rulespec remove <id>                 Remove a rule by id
+rulespec list                        List all rules
+rulespec compile [id]                Regenerate prompts and print markdown to stdout
+rulespec validate                    Validate the rulespec file
+rulespec emit                        Generate rules/{domain}/RULES.md for agents
 
 Options:
-  --file <path>                     Path to rulekit file (default: rulekit.yaml)
+  --file <path>                     Path to rulespec file (default: rulespec.yaml)
   --outdir <path>                   Output directory for emit (default: rules)
   --include-examples true           Include examples in emitted RULES.md
 ```
 
 ## Design choices
 
-- **Format first, tooling second.** rulekit is a schema, not a framework. The YAML file is the product. The CLI is convenience. You could hand-edit the file and pipe it through anything.
+- **Format first, tooling second.** rulespec is a schema, not a framework. The YAML file is the product. The CLI is convenience. You could hand-edit the file and pipe it through anything.
 - **One rule, one change.** Editing a rule only affects that rule's compiled prompt. No cascading rewrites across your entire prompt. This makes iteration safe and diffs reviewable.
 - **Intent shapes output.** `enforce` produces strict, directive prompt language. `inform` produces softer guidance. `suggest` produces optional recommendations. Same rule, different prompt weight — controlled by one field.
 - **Business people own rules, engineers own strategy.** The compilation step is where prompt engineering lives. Rules are plain language. The two concerns never bleed into each other.
 - **Sources describe, examples prove.** Sources define what data the rules operate on. Examples define what correct looks like. Together they form a complete specification that can be evaluated automatically.
-- **Schema up, data stays down.** The rulekit spec (rules + source schemas) is safe to share with LLMs, vendors, auditors. Examples contain real data and stay local for evaluation. RULES.md excludes examples by default.
+- **Schema up, data stays down.** The rulespec spec (rules + source schemas) is safe to share with LLMs, vendors, auditors. Examples contain real data and stay local for evaluation. RULES.md excludes examples by default.
 
 ## Why not just edit prompts directly?
 
@@ -275,7 +275,7 @@ You can. Most people do. It works until:
 - An auditor asks "where in our AI system is the refund policy enforced?"
 - You need to prove your AI agent follows business policy before going live
 
-rulekit makes business rules traceable, diffable, and independently versionable. `git blame` tells you who changed a rule and when. `rulekit diff` tells you exactly how the prompt changed. Examples let you verify the rules actually work.
+rulespec makes business rules traceable, diffable, and independently versionable. `git blame` tells you who changed a rule and when. `rulespec diff` tells you exactly how the prompt changed. Examples let you verify the rules actually work.
 
 ## License
 

@@ -1,4 +1,4 @@
-import type { Rule, RulekitFile } from "./schema.js";
+import type { Rule, RulespecFile } from "./schema.js";
 
 export interface CompileOptions {
   includeHeader?: boolean;
@@ -32,7 +32,7 @@ export function compileRule(rule: Rule): string {
 }
 
 export function compileRules(
-  file: RulekitFile,
+  file: RulespecFile,
   options: CompileOptions = {},
 ): string {
   const { includeHeader = true } = options;

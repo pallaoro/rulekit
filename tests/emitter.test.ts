@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { emitRulesMd, emitDirName } from "../src/emitter.js";
-import type { RulekitFile } from "../src/schema.js";
+import type { RulespecFile } from "../src/schema.js";
 
-const makeFile = (overrides: Partial<RulekitFile> = {}): RulekitFile => ({
-  schema: "rulekit/v1",
+const makeFile = (overrides: Partial<RulespecFile> = {}): RulespecFile => ({
+  schema: "rulespec/v1",
   domain: "invoice processing",
   rules: [
     {
@@ -44,7 +44,7 @@ describe("emitRulesMd", () => {
     expect(md).toMatch(/^---\n/);
     expect(md).toContain("name: invoice-processing");
     expect(md).toContain("type: rules");
-    expect(md).toContain("schema: rulekit/v1");
+    expect(md).toContain("schema: rulespec/v1");
     expect(md).toContain("---\n");
   });
 

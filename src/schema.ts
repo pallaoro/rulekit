@@ -30,7 +30,7 @@ export interface Rule {
   examples?: Example[];
 }
 
-export interface RulekitFile {
+export interface RulespecFile {
   schema: string;
   domain: string;
   model?: string;
@@ -45,7 +45,7 @@ export interface ValidationError {
 }
 
 type ValidationResult =
-  | { ok: true; value: RulekitFile }
+  | { ok: true; value: RulespecFile }
   | { ok: false; errors: ValidationError[] };
 
 const VALID_INTENTS: Intent[] = ["enforce", "inform", "suggest"];
@@ -67,10 +67,10 @@ export function validate(data: unknown): ValidationResult {
 
   const obj = data as Record<string, unknown>;
 
-  if (obj.schema !== "rulekit/v1") {
+  if (obj.schema !== "rulespec/v1") {
     errors.push({
       path: "schema",
-      message: `Expected "rulekit/v1", got ${JSON.stringify(obj.schema)}`,
+      message: `Expected "rulespec/v1", got ${JSON.stringify(obj.schema)}`,
     });
   }
 
@@ -298,5 +298,5 @@ export function validate(data: unknown): ValidationResult {
     return { ok: false, errors };
   }
 
-  return { ok: true, value: data as unknown as RulekitFile };
+  return { ok: true, value: data as unknown as RulespecFile };
 }

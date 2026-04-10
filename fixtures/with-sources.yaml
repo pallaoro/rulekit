@@ -1,4 +1,4 @@
-schema: rulekit/v1
+schema: rulespec/v1
 domain: "invoice processing"
 
 sources:

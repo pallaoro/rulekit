@@ -1,7 +1,7 @@
 import { writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 
-const TEMPLATE = `schema: rulekit/v1
+const TEMPLATE = `schema: rulespec/v1
 domain: "your domain here"
 
 rules:

@@ -1,4 +1,4 @@
-import type { Rule, RulekitFile } from "./schema.js";
+import type { Rule, RulespecFile } from "./schema.js";
 
 function buildMetaPrompt(rule: Rule, domain: string): string {
   return `You are a prompt engineer. Given a business rule, generate a concise markdown prompt fragment that can be injected into a larger LLM system prompt.
@@ -24,10 +24,10 @@ Output format:
 
 export async function generatePrompt(
   rule: Rule,
-  file: RulekitFile,
+  file: RulespecFile,
 ): Promise<string> {
   if (!file.model) {
-    throw new Error("No model configured in rulekit file");
+    throw new Error("No model configured in rulespec file");
   }
 
   // Dynamic import — ai is an optional peer dependency

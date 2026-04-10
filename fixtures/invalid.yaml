@@ -1,4 +1,4 @@
-schema: rulekit/v2
+schema: rulespec/v2
 domain: ""
 
 rules:

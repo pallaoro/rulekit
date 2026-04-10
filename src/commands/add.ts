@@ -11,7 +11,7 @@ export async function add(
 
   if (!id || !rule || !context || !intent) {
     console.error(
-      "Usage: rulekit add --id <id> --rule <text> --context <text> --intent <enforce|inform|suggest>",
+      "Usage: rulespec add --id <id> --rule <text> --context <text> --intent <enforce|inform|suggest>",
     );
     process.exit(1);
   }

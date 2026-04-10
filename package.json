@@ -1,6 +1,6 @@
 {
   "name": "rulespec",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Business rules as structured data, compiled into LLM-ready markdown prompts",
   "type": "module",
   "main": "./dist/index.js",
@@ -12,8 +12,7 @@
     }
   },
   "bin": {
-    "rulespec": "./dist/cli.js",
-    "rulekit": "./dist/cli.js"
+    "rulespec": "./dist/cli.js"
   },
   "files": [
     "dist"

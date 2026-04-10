@@ -20,22 +20,22 @@ function parseFlags(args: string[]): Record<string, string> {
 }
 
 function printHelp(): void {
-  console.log(`rulekit — business rules as structured data
+  console.log(`rulespec — business rules as structured data
 
 Usage:
-  rulekit <command> [options]
+  rulespec <command> [options]
 
 Commands:
-  init              Create a rulekit.yaml in the current directory
+  init              Create a rulespec.yaml in the current directory
   add               Add a new rule
   remove <id>       Remove a rule by id
   list              List all rules
   compile [id]      Regenerate prompts and print markdown to stdout
-  validate          Validate the rulekit file
+  validate          Validate the rulespec file
   emit              Generate rules/{domain}/RULES.md for agent consumption
 
 Options:
-  --file <path>     Path to rulekit file (default: rulekit.yaml)
+  --file <path>     Path to rulespec file (default: rulespec.yaml)
   --help            Show this help message
 
 Add options:
@@ -60,7 +60,7 @@ async function main(): Promise<void> {
 
   const rest = args.slice(1);
   const flags = parseFlags(rest);
-  const file = flags.file ?? "rulekit.yaml";
+  const file = flags.file ?? "rulespec.yaml";
 
   switch (command) {
     case "init":
@@ -71,7 +71,7 @@ async function main(): Promise<void> {
       break;
     case "remove":
       if (!rest[0] || rest[0].startsWith("--")) {
-        console.error("Usage: rulekit remove <id>");
+        console.error("Usage: rulespec remove <id>");
         process.exit(1);
       }
       await remove(file, rest[0]);

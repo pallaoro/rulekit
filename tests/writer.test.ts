@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { addRule, removeRule } from "../src/writer.js";
-import { parseRulekitFile } from "../src/parser.js";
+import { parseRulespecFile } from "../src/parser.js";
 import { copyFile, unlink } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -27,7 +27,7 @@ describe("addRule", () => {
       prompt: "",
     });
 
-    const file = await parseRulekitFile(TMP);
+    const file = await parseRulespecFile(TMP);
     expect(file.rules).toHaveLength(4);
     expect(file.rules[3].id).toBe("new-rule");
   });
@@ -41,7 +41,7 @@ describe("addRule", () => {
       prompt: "",
     });
 
-    const file = await parseRulekitFile(TMP);
+    const file = await parseRulespecFile(TMP);
     const added = file.rules.find((r) => r.id === "new-rule")!;
     expect(added.prompt).toContain("### New Rule");
     expect(added.prompt).toContain("**You must follow this rule.**");
@@ -64,7 +64,7 @@ describe("addRule", () => {
 describe("removeRule", () => {
   it("removes a rule by id", async () => {
     await removeRule(TMP, "greeting-tone");
-    const file = await parseRulekitFile(TMP);
+    const file = await parseRulespecFile(TMP);
     expect(file.rules).toHaveLength(2);
     expect(file.rules.every((r) => r.id !== "greeting-tone")).toBe(true);
   });

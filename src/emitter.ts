@@ -1,5 +1,5 @@
 import { stringify } from "yaml";
-import type { RulekitFile, Source } from "./schema.js";
+import type { RulespecFile, Source } from "./schema.js";
 import { compileRule } from "./compiler.js";
 
 function slugify(domain: string): string {
@@ -51,7 +51,7 @@ export interface EmitOptions {
 }
 
 export function emitRulesMd(
-  file: RulekitFile,
+  file: RulespecFile,
   options: EmitOptions = {},
 ): string {
   const { includeExamples = false } = options;
@@ -63,7 +63,7 @@ export function emitRulesMd(
   parts.push(`name: ${slugify(file.domain)}`);
   parts.push(`description: ${description}`);
   parts.push("type: rules");
-  parts.push("schema: rulekit/v1");
+  parts.push("schema: rulespec/v1");
   parts.push("---");
   parts.push("");
 
@@ -117,6 +117,6 @@ export function emitRulesMd(
   return parts.join("\n");
 }
 
-export function emitDirName(file: RulekitFile): string {
+export function emitDirName(file: RulespecFile): string {
   return slugify(file.domain);
 }

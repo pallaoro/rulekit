@@ -11,7 +11,7 @@ async function readAndValidate(path: string) {
     const messages = result.errors
       .map((e) => `  ${e.path}: ${e.message}`)
       .join("\n");
-    throw new Error(`Invalid rulekit file:\n${messages}`);
+    throw new Error(`Invalid rulespec file:\n${messages}`);
   }
   return result.value;
 }

@@ -1,7 +1,7 @@
-import { parseRulekitFile } from "../parser.js";
+import { parseRulespecFile } from "../parser.js";
 
 export async function list(file: string): Promise<void> {
-  const { rules } = await parseRulekitFile(file);
+  const { rules } = await parseRulespecFile(file);
 
   const idWidth = Math.max(4, ...rules.map((r) => r.id.length));
   const intentWidth = 7;

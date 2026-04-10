@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { compileRule, compileRules } from "../src/compiler.js";
-import type { Rule, RulekitFile } from "../src/schema.js";
+import type { Rule, RulespecFile } from "../src/schema.js";
 
 const makeRule = (overrides: Partial<Rule> = {}): Rule => ({
   id: "test-rule",
@@ -11,8 +11,8 @@ const makeRule = (overrides: Partial<Rule> = {}): Rule => ({
   ...overrides,
 });
 
-const makeFile = (rules: Rule[]): RulekitFile => ({
-  schema: "rulekit/v1",
+const makeFile = (rules: Rule[]): RulespecFile => ({
+  schema: "rulespec/v1",
   domain: "test",
   rules,
 });
@@ -88,8 +88,8 @@ describe("compileRules", () => {
   });
 
   it("produces expected output for the README example", () => {
-    const file: RulekitFile = {
-      schema: "rulekit/v1",
+    const file: RulespecFile = {
+      schema: "rulespec/v1",
       domain: "e-commerce customer support",
       rules: [
         {

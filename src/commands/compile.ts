@@ -1,25 +1,25 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { parse, stringify } from "yaml";
-import { parseRulekitFile } from "../parser.js";
+import { parseRulespecFile } from "../parser.js";
 import { compileRule, compileRules } from "../compiler.js";
 import { generatePrompt } from "../generate.js";
 
 export async function compile(file: string, ruleId?: string): Promise<void> {
-  const rulekitFile = await parseRulekitFile(file);
-  const useAI = !!rulekitFile.model;
+  const specFile = await parseRulespecFile(file);
+  const useAI = !!specFile.model;
   let changed = false;
 
   if (useAI) {
-    console.log(`Using model: ${rulekitFile.model}`);
+    console.log(`Using model: ${specFile.model}`);
   }
 
-  for (const rule of rulekitFile.rules) {
+  for (const rule of specFile.rules) {
     if (ruleId && rule.id !== ruleId) continue;
 
     let newPrompt: string;
     if (useAI) {
       process.stdout.write(`Generating prompt for "${rule.id}"...`);
-      newPrompt = await generatePrompt(rule, rulekitFile);
+      newPrompt = await generatePrompt(rule, specFile);
       console.log(" done");
     } else {
       newPrompt = compileRule(rule);
@@ -31,7 +31,7 @@ export async function compile(file: string, ruleId?: string): Promise<void> {
     }
   }
 
-  if (ruleId && !rulekitFile.rules.some((r) => r.id === ruleId)) {
+  if (ruleId && !specFile.rules.some((r) => r.id === ruleId)) {
     console.error(`Rule "${ruleId}" not found`);
     process.exit(1);
   }
@@ -39,7 +39,7 @@ export async function compile(file: string, ruleId?: string): Promise<void> {
   if (changed) {
     const raw = await readFile(file, "utf-8");
     const data = parse(raw);
-    data.rules = rulekitFile.rules;
+    data.rules = specFile.rules;
     await writeFile(file, stringify(data), "utf-8");
     console.log("Prompts regenerated and saved.");
   } else {
@@ -47,5 +47,5 @@ export async function compile(file: string, ruleId?: string): Promise<void> {
   }
 
   console.log();
-  console.log(compileRules(rulekitFile));
+  console.log(compileRules(specFile));
 }

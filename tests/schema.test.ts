@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { validate } from "../src/schema.js";
 
 const validBase = {
-  schema: "rulekit/v1",
+  schema: "rulespec/v1",
   domain: "test",
   rules: [
     {
