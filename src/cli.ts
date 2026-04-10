@@ -32,7 +32,7 @@ Commands:
   list              List all rules
   compile [id]      Regenerate prompts and print markdown to stdout
   validate          Validate the rulespec file
-  emit              Generate rules/{domain}/RULES.md for agent consumption
+  emit              Generate skills/{domain}/SKILL.md for agent consumption
 
 Options:
   --file <path>     Path to rulespec file (default: rulespec.yaml)
@@ -45,8 +45,8 @@ Add options:
   --intent <type>   enforce, inform, or suggest
 
 Emit options:
-  --outdir <path>   Output directory (default: rules)
-  --include-examples true  Include examples in RULES.md (default: false)`);
+  --outdir <path>   Output directory (default: skills)
+  --include-examples true  Include examples in SKILL.md (default: false)`);
 }
 
 async function main(): Promise<void> {

@@ -8,7 +8,7 @@ export async function emit(
   flags: Record<string, string>,
 ): Promise<void> {
   const specFile = await parseRulespecFile(file);
-  const outdir = flags.outdir ?? "rules";
+  const outdir = flags.outdir ?? "skills";
   const includeExamples = flags["include-examples"] === "true";
 
   const dirName = emitDirName(specFile);
@@ -16,7 +16,7 @@ export async function emit(
   await mkdir(targetDir, { recursive: true });
 
   const md = emitRulesMd(specFile, { includeExamples });
-  const targetPath = resolve(targetDir, "RULES.md");
+  const targetPath = resolve(targetDir, "SKILL.md");
   await writeFile(targetPath, md, "utf-8");
 
   console.log(`Emitted ${targetPath}`);
