@@ -12,9 +12,55 @@ description: >
 
 rulespec is a CLI tool and standard format for expressing business rules as structured data. Rules are written in plain language by domain experts, stored in `rulespec.yaml`, and compiled into SKILL.md files that agents load directly.
 
-**IMPORTANT: Always use the `rulespec` CLI to create, modify, and compile rules. Never edit `rulespec.yaml` or emitted SKILL.md files directly.** The CLI validates schema, enforces constraints, and keeps compiled prompts in sync. Direct edits bypass validation and will be overwritten on next compile/emit.
+**IMPORTANT: Always use the `rulespec` CLI to modify rules, sources, and examples. Never edit emitted SKILL.md files directly — they are generated and will be overwritten.** For complex structures (source schemas, nested example data), you may edit `rulespec.yaml` directly, but always run `rulespec validate` afterward.
 
 All commands use `npx rulespec` — no global install needed. npx downloads and runs it automatically.
+
+## CLI commands
+
+### Setup
+```bash
+rulespec init --domain "invoice processing"   # Create rulespec.yaml with domain
+rulespec set-domain "customer support"         # Change the domain
+```
+
+### Rules
+```bash
+rulespec add --id <id> --rule <text> --context <text> --intent <enforce|inform|suggest>
+rulespec edit <id> --rule <new text>           # Update rule text
+rulespec edit <id> --intent enforce            # Change intent level
+rulespec edit <id> --context "new context"     # Change when rule applies
+rulespec remove <id>                           # Remove a rule
+rulespec list                                  # List all rules
+```
+
+### Sources
+```bash
+rulespec add-source --id <id> --type <document|api|database|message|structured> --description <text> [--format <fmt>]
+rulespec remove-source <id>
+```
+
+### Examples
+```bash
+rulespec add-example --input '{"key": "val"}' --output '{"key": "val"}' [--description <text>]
+rulespec remove-example <index>                # 0-based index
+```
+
+### Find & replace
+```bash
+rulespec replace --old "30 days" --new "60 days"   # Validates + recompiles automatically
+```
+
+### Build & emit
+```bash
+rulespec compile [id]                          # Preview compiled prompts
+rulespec validate                              # Check file against schema
+rulespec emit                                  # Generate skills/{domain}/SKILL.md
+rulespec emit --include-examples true          # Include examples in output
+rulespec emit --outdir <path>                  # Custom output dir (default: skills)
+```
+
+All commands accept `--file <path>` to specify a different file (default: `rulespec.yaml`).
 
 ## File format
 
@@ -48,50 +94,22 @@ examples:                             # optional — end-to-end golden standards
 - `inform` — guidance. Agent should be aware. Compiles to neutral language.
 - `suggest` — recommendation. Agent may consider. Compiles to soft language.
 
-## CLI commands
-
-```bash
-rulespec init                         # Create a rulespec.yaml with an example rule
-rulespec add --id <id> --rule <text> --context <text> --intent <enforce|inform|suggest>
-rulespec remove <id>                  # Remove a rule by id
-rulespec list                         # List all rules in a table
-rulespec compile [id]                 # Compile rules into markdown prompts
-rulespec validate                     # Check the file against the schema
-rulespec emit                         # Generate skills/{domain}/SKILL.md for agents
-rulespec emit --include-examples true # Include examples in the emitted SKILL.md
-rulespec emit --outdir <path>         # Custom output directory (default: skills)
-```
-
-All commands accept `--file <path>` to specify a different file (default: `rulespec.yaml`).
-
 ## Workflow
 
-1. `rulespec init` to create the file
-2. Add rules with `rulespec add`
-3. `rulespec validate` to check for errors
-4. `rulespec compile` to preview the compiled prompts
-5. `rulespec emit` to generate `skills/{domain}/SKILL.md` for agent consumption
-
-## Output
-
-`rulespec emit` generates a SKILL.md file with YAML frontmatter in the skills directory:
-
-```
-skills/
-  invoice-processing/
-    SKILL.md
-  customer-support/
-    SKILL.md
-```
-
-The emitted SKILL.md uses intent tags (`[enforce]`, `[inform]`, `[suggest]`) so the agent knows how strictly to treat each rule. Rules marked `[enforce]` should always be followed. `[inform]` provides guidance. `[suggest]` is optional.
+1. `rulespec init --domain "my domain"` to create the file
+2. Add sources with `rulespec add-source`
+3. Add rules with `rulespec add`
+4. Add examples with `rulespec add-example`
+5. `rulespec validate` to check for errors
+6. `rulespec compile` to preview compiled prompts
+7. `rulespec emit` to generate `skills/{domain}/SKILL.md`
 
 ## Key principles
 
-- Always use the CLI — never edit rulespec.yaml or SKILL.md files directly
+- Use the CLI for rules, sources, and examples — never edit emitted SKILL.md files
+- For complex source schemas or nested example data, edit `rulespec.yaml` directly + run `rulespec validate`
+- `rulespec replace` is a safe find-and-replace: validates and recompiles after every change
 - One rule, one change — editing a rule only affects that rule's compiled output
-- Business people own rules (plain language), engineers own compilation strategy
-- Examples are for local evaluation — they contain real data and are excluded from SKILL.md by default
-- Sources describe what data the rules operate on, making the spec self-contained
+- Examples are excluded from emitted SKILL.md by default (they may contain sensitive data)
 
 Built by the team behind [Clawnify](https://www.clawnify.com).

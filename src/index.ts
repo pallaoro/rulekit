@@ -6,6 +6,17 @@ export { emitRulesMd, emitDirName } from "./emitter.js";
 export { generatePrompt } from "./generate.js";
 export { parseRulespecFile } from "./parser.js";
 export { validate } from "./schema.js";
+export {
+  addRule,
+  editRule,
+  removeRule,
+  addSource,
+  removeSource,
+  addExample,
+  removeExample,
+  setDomain,
+  replaceInFile,
+} from "./writer.js";
 
 import { parseRulespecFile } from "./parser.js";
 import type { CompileOptions } from "./compiler.js";
