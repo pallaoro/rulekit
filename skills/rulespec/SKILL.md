@@ -9,6 +9,8 @@ rulespec is a CLI tool and standard format for expressing business rules as stru
 
 **IMPORTANT: Always use the `rulespec` CLI to create, modify, and compile rules. Never edit `rulespec.yaml` or emitted SKILL.md files directly.** The CLI validates schema, enforces constraints, and keeps compiled prompts in sync. Direct edits bypass validation and will be overwritten on next compile/emit.
 
+All commands use `npx rulespec` — no global install needed. npx downloads and runs it automatically.
+
 ## File format
 
 ```yaml
