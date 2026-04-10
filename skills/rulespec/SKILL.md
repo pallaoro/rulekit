@@ -88,3 +88,5 @@ The emitted SKILL.md uses intent tags (`[enforce]`, `[inform]`, `[suggest]`) so 
 - Business people own rules (plain language), engineers own compilation strategy
 - Examples are for local evaluation — they contain real data and are excluded from SKILL.md by default
 - Sources describe what data the rules operate on, making the spec self-contained
+
+Built by the team behind [Clawnify](https://www.clawnify.com).
