@@ -1,0 +1,18 @@
+schema: rulekit/v2
+domain: ""
+
+rules:
+  - id: good-rule
+    rule: "This is fine"
+    context: "Always"
+    intent: enforce
+
+  - id: good-rule
+    rule: "Duplicate id"
+    context: "Always"
+    intent: enforce
+
+  - id: BAD_ID
+    rule: ""
+    context: ""
+    intent: invalid

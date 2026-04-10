@@ -1,0 +1,21 @@
+schema: rulekit/v1
+domain: "e-commerce customer support"
+
+rules:
+  - id: refund-window
+    rule: "Refunds are allowed within 30 days of purchase for unused items"
+    context: "When a customer asks about returns or refunds"
+    intent: enforce
+    prompt: "### Refund Window\n**You must follow this rule.** When a customer asks about returns or refunds: Refunds are allowed within 30 days of purchase for unused items."
+
+  - id: greeting-tone
+    rule: "Always greet the customer by first name in a warm, professional tone"
+    context: "Beginning of every conversation"
+    intent: inform
+    prompt: "### Greeting Tone\nBeginning of every conversation: Always greet the customer by first name in a warm, professional tone."
+
+  - id: escalation
+    rule: "Escalate to a human agent after 3 failed resolution attempts"
+    context: "When automated support cannot resolve the issue"
+    intent: enforce
+    prompt: "### Escalation\n**You must follow this rule.** When automated support cannot resolve the issue: Escalate to a human agent after 3 failed resolution attempts."

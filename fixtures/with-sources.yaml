@@ -1,0 +1,104 @@
+schema: rulekit/v1
+domain: "invoice processing"
+
+sources:
+  - id: invoice
+    type: document
+    format: pdf
+    description: "Incoming vendor invoice"
+    schema:
+      number: string
+      vendor: string
+      line_items:
+        - description: string
+          quantity: number
+          unit_price: number
+          currency: string
+      date: date
+
+  - id: vendor-lookup
+    type: api
+    format: json
+    description: "ERP vendor lookup"
+
+rules:
+  - id: duplicate-check
+    rule: "Reject invoices with duplicate invoice numbers"
+    context: "Before processing any invoice"
+    intent: enforce
+    prompt: "### Duplicate Check\n**You must follow this rule.** Before processing any invoice: Reject invoices with duplicate invoice numbers."
+
+  - id: approval-threshold
+    rule: "Invoices over $5000 require manager approval"
+    context: "After extraction, before posting"
+    intent: enforce
+    prompt: "### Approval Threshold\n**You must follow this rule.** After extraction, before posting: Invoices over $5000 require manager approval."
+
+  - id: currency-convert
+    rule: "Convert non-USD invoices to USD using daily ECB rate"
+    context: "During extraction"
+    intent: enforce
+    prompt: "### Currency Convert\n**You must follow this rule.** During extraction: Convert non-USD invoices to USD using daily ECB rate."
+
+  - id: greeting
+    rule: "Address the submitter by first name in confirmation messages"
+    context: "After processing decision"
+    intent: inform
+    prompt: "### Greeting\nAfter processing decision: Address the submitter by first name in confirmation messages."
+
+examples:
+  - description: "Foreign currency invoice requiring approval"
+    input:
+      invoice:
+        number: "INV-1001"
+        vendor: "Acme GmbH"
+        line_items:
+          - description: "Consulting Q1"
+            quantity: 1
+            unit_price: 7200
+            currency: "EUR"
+        date: "2026-03-15"
+    output:
+      action: "require-approval"
+      vendor: "Acme GmbH"
+      converted:
+        amount: 7850
+        currency: "USD"
+      approver: "finance-mgr"
+      flags:
+        - "foreign-currency"
+
+  - description: "Duplicate invoice rejection"
+    input:
+      invoice:
+        number: "INV-0999"
+        vendor: "Local Supply"
+        line_items:
+          - description: "Paper"
+            quantity: 50
+            unit_price: 42
+            currency: "USD"
+        date: "2026-03-10"
+      existing_invoices:
+        - "INV-0999"
+    output:
+      action: "reject"
+      reason: "duplicate"
+
+  - description: "Small USD invoice auto-approved"
+    input:
+      invoice:
+        number: "INV-1050"
+        vendor: "Office Depot"
+        line_items:
+          - description: "Printer ink"
+            quantity: 3
+            unit_price: 45
+            currency: "USD"
+        date: "2026-03-20"
+    output:
+      action: "auto-approve"
+      vendor: "Office Depot"
+      amount:
+        value: 135
+        currency: "USD"

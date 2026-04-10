@@ -1,0 +1,122 @@
+import { stringify } from "yaml";
+import type { RulekitFile, Source } from "./schema.js";
+import { compileRule } from "./compiler.js";
+
+function slugify(domain: string): string {
+  return domain
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function kebabToTitle(id: string): string {
+  return id
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function intentTag(intent: string): string {
+  return `[${intent}]`;
+}
+
+function sourcesTable(sources: Source[]): string {
+  const lines: string[] = [
+    "## Sources",
+    "",
+    "| Source | Type | Format | Description |",
+    "|--------|------|--------|-------------|",
+  ];
+  for (const s of sources) {
+    lines.push(
+      `| ${s.id} | ${s.type} | ${s.format ?? "—"} | ${s.description} |`,
+    );
+  }
+  return lines.join("\n");
+}
+
+function sourceSchemas(sources: Source[]): string {
+  const withSchema = sources.filter((s) => s.schema);
+  if (withSchema.length === 0) return "";
+
+  const parts: string[] = [];
+  for (const s of withSchema) {
+    parts.push(`### ${s.id}\n\`\`\`yaml\n${stringify(s.schema).trim()}\n\`\`\``);
+  }
+  return parts.join("\n\n");
+}
+
+export interface EmitOptions {
+  includeExamples?: boolean;
+}
+
+export function emitRulesMd(
+  file: RulekitFile,
+  options: EmitOptions = {},
+): string {
+  const { includeExamples = false } = options;
+  const parts: string[] = [];
+
+  // Frontmatter
+  const description = `Business rules for ${file.domain}. ${file.rules.length} rule${file.rules.length === 1 ? "" : "s"}: ${file.rules.map((r) => kebabToTitle(r.id)).join(", ")}.`;
+  parts.push("---");
+  parts.push(`name: ${slugify(file.domain)}`);
+  parts.push(`description: ${description}`);
+  parts.push("type: rules");
+  parts.push("schema: rulekit/v1");
+  parts.push("---");
+  parts.push("");
+
+  // Sources
+  if (file.sources && file.sources.length > 0) {
+    parts.push(sourcesTable(file.sources));
+    parts.push("");
+    const schemas = sourceSchemas(file.sources);
+    if (schemas) {
+      parts.push(schemas);
+      parts.push("");
+    }
+  }
+
+  // Rules
+  parts.push("## Rules");
+  parts.push("");
+  for (const rule of file.rules) {
+    const title = kebabToTitle(rule.id);
+    const tag = intentTag(rule.intent);
+    // Use pre-compiled prompt if available, otherwise compile fresh
+    const body = rule.prompt || compileRule(rule);
+    // Strip the heading from compiled prompt (we add our own with intent tag)
+    const bodyWithoutHeading = body.replace(/^###\s+.*\n/, "");
+    parts.push(`### ${title} ${tag}`);
+    parts.push(bodyWithoutHeading.trim());
+    parts.push("");
+  }
+
+  // Global examples (only if opted in — these contain real data)
+  if (includeExamples && file.examples && file.examples.length > 0) {
+    parts.push("## Expected Behavior");
+    parts.push("");
+    for (let i = 0; i < file.examples.length; i++) {
+      const ex = file.examples[i];
+      if (ex.description) {
+        parts.push(`### Example ${i + 1}: ${ex.description}`);
+      } else {
+        parts.push(`### Example ${i + 1}`);
+      }
+      parts.push("");
+      parts.push("**Input:**");
+      parts.push(`\`\`\`yaml\n${stringify(ex.input).trim()}\n\`\`\``);
+      parts.push("");
+      parts.push("**Expected output:**");
+      parts.push(`\`\`\`yaml\n${stringify(ex.output).trim()}\n\`\`\``);
+      parts.push("");
+    }
+  }
+
+  return parts.join("\n");
+}
+
+export function emitDirName(file: RulekitFile): string {
+  return slugify(file.domain);
+}

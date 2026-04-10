@@ -1,0 +1,54 @@
+{
+  "name": "rulekit",
+  "version": "0.1.0",
+  "description": "Business rules as structured data, compiled into LLM-ready markdown prompts",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "rulekit": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "keywords": [
+    "rules",
+    "llm",
+    "prompt",
+    "ai",
+    "business-rules",
+    "yaml",
+    "markdown"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "yaml": "^2.7.0"
+  },
+  "peerDependencies": {
+    "ai": ">=4.0.0",
+    "@ai-sdk/openai": ">=1.0.0",
+    "@ai-sdk/anthropic": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ai": { "optional": true },
+    "@ai-sdk/openai": { "optional": true },
+    "@ai-sdk/anthropic": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
