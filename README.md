@@ -5,7 +5,9 @@ Business rules as structured data. Compiles into LLM-ready prompts and agent-loa
 [![npm](https://img.shields.io/npm/v/rulespec)](https://www.npmjs.com/package/rulespec)
 [![license](https://img.shields.io/npm/l/rulespec)](LICENSE)
 
-*Business rules change constantly. Prompts shouldn't be hand-edited every time a policy updates. rulespec is a standard format for expressing business rules as structured data, and a compiler that turns them into LLM-ready prompts — or SKILL.md files that AI agents load directly. You change the rule, recompile, and only that prompt changes. Everything else stays untouched.*
+When you have many business rules and you add or change one, there's always the risk of breaking the others. Inline prompt editing doesn't scale — one wrong edit to a system prompt can silently invalidate rules that were working fine. Other solutions aren't built for this.
+
+**rulespec** solves this: each rule is an independent, validated unit. You add, edit, or remove one rule via CLI — the rest stay untouched. The compiled output is a structured SKILL.md that any AI agent can load. One rule, one change, zero side effects.
 
 ## Quick start
 
