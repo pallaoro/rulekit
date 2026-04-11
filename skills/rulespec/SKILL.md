@@ -10,7 +10,11 @@ description: >
 
 # rulespec
 
-rulespec is a CLI tool and standard format for expressing business rules as structured data. Rules are written in plain language by domain experts, stored in `rulespec.yaml`, and compiled into SKILL.md files that agents load directly.
+**Manage business rules for AI agents without breaking what already works.**
+
+Adding a rule to a system prompt shouldn't risk invalidating the ones that are already there. Inline prompt editing doesn't scale — and other solutions aren't built for business rules.
+
+rulespec treats each rule as an independent, validated unit. Add, edit, or remove one rule via CLI — the rest stay untouched. The output is a structured SKILL.md that any AI agent can load.
 
 **IMPORTANT: Always use the `rulespec` CLI to modify rules, sources, and examples. Never edit emitted SKILL.md files directly — they are generated and will be overwritten.** For complex structures (source schemas, nested example data), you may edit `rulespec.yaml` directly, but always run `rulespec validate` afterward.
 
