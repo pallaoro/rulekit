@@ -94,6 +94,14 @@ examples:
     output:
       action: "reject"
       reason: "duplicate"
+
+  - description: "PDF invoice extraction"
+    input:
+      file: "./samples/invoice-1003.pdf"
+    output:
+      action: "auto-approve"
+      vendor: "Office Depot"
+      amount: 135
 ```
 
 ### Fields
