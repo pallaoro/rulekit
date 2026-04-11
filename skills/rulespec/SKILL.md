@@ -124,6 +124,16 @@ examples:                             # optional — end-to-end golden standards
 6. `rulespec compile` to preview compiled prompts
 7. `rulespec emit` to generate `skills/{domain}/SKILL.md`
 
+## Programmatic usage
+
+To inject rules into LLM prompts at runtime:
+
+```typescript
+import { loadRules } from "rulespec";
+const rules = await loadRules("rulespec.yaml");
+// rules is a compiled markdown string — inject into any system prompt or API call
+```
+
 ## Key principles
 
 - Use the CLI for rules, sources, and examples — never edit emitted SKILL.md files
