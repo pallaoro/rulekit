@@ -33,11 +33,11 @@ No global install needed — `npx` downloads and runs it automatically.
 ## Install as an agent skill
 
 ```bash
-# All supported agents (Claude Code, Cursor, Codex, Gemini CLI, Copilot, etc.)
+# All agents globally
 npx skills add pallaoro/rulespec -g -y
 
-# Specific agents only
-npx skills add pallaoro/rulespec --agent claude-code cursor codex
+# Claude Code only
+npx skills add pallaoro/rulespec -g -a claude-code -y
 
 # OpenClaw (via ClawHub)
 openclaw skills install rulespec
