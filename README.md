@@ -5,6 +5,8 @@
 
 **Manage business rules for AI agents without breaking what already works.**
 
+<img width="1007" height="576" alt="Image" src="https://github.com/user-attachments/assets/bdbd5f21-cbfa-4bb3-8000-15d06ea1a161" />
+
 Adding a rule to a system prompt shouldn't risk invalidating the ones that are already there. Inline prompt editing doesn't scale — and other solutions aren't built for business rules.
 
 rulespec treats each rule as an independent, validated unit. Add, edit, or remove one rule via CLI — the rest stay untouched. The output is a structured SKILL.md that any AI agent can load.
