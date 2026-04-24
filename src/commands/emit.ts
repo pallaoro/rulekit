@@ -1,5 +1,6 @@
-import { mkdir, writeFile, readdir } from "node:fs/promises";
-import { resolve } from "node:path";
+import { mkdir, writeFile, readdir, stat } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { resolve, join } from "node:path";
 import { parseRulespecFile } from "../parser.js";
 import { emitRulesMd, emitDirName } from "../emitter.js";
 
@@ -33,15 +34,11 @@ export async function emit(
     return;
   }
 
-  // Scan for *.rulespec.yaml files
-  const entries = await readdir(".").catch(() => []);
-  const rulespecFiles = (entries as string[]).filter((f) =>
-    f.endsWith(".rulespec.yaml"),
-  );
+  const rulespecFiles = await findAllRulespecFiles(outdir);
 
   if (rulespecFiles.length === 0) {
     console.error(
-      'No *.rulespec.yaml files found. Run "rulespec init --domain <name>" to create one.',
+      'No rulespec files found. Run "rulespec init --domain <name>" to create one.',
     );
     process.exit(1);
   }
@@ -49,4 +46,34 @@ export async function emit(
   for (const f of rulespecFiles) {
     await emitOne(f, outdir, includeExamples);
   }
+}
+
+async function findAllRulespecFiles(outdir: string): Promise<string[]> {
+  const found: string[] = [];
+
+  // New layout: {outdir}/<domain>/rulespec.yaml
+  try {
+    const skillDirs = await readdir(outdir);
+    for (const d of skillDirs) {
+      const subDir = join(outdir, d);
+      try {
+        const s = await stat(subDir);
+        if (!s.isDirectory()) continue;
+      } catch {
+        continue;
+      }
+      const p = join(subDir, "rulespec.yaml");
+      if (existsSync(p)) found.push(p);
+    }
+  } catch {}
+
+  // Legacy: *.rulespec.yaml at cwd
+  try {
+    const entries = await readdir(".");
+    for (const f of entries) {
+      if (f.endsWith(".rulespec.yaml")) found.push(f);
+    }
+  } catch {}
+
+  return found;
 }

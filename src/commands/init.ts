@@ -1,5 +1,6 @@
-import { writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 function slugify(domain: string): string {
   return domain
@@ -34,13 +35,17 @@ export async function init(
     process.exit(1);
   }
 
-  // If no explicit --file, derive from domain
-  const targetFile =
-    flags.file ? file : `${slugify(domain)}.rulespec.yaml`;
+  const slug = slugify(domain);
+  const skillDir = join("skills", slug);
+  const targetFile = flags.file ? file : join(skillDir, "rulespec.yaml");
 
   if (existsSync(targetFile)) {
     console.error(`${targetFile} already exists`);
     process.exit(1);
+  }
+
+  if (!flags.file) {
+    await mkdir(skillDir, { recursive: true });
   }
 
   await writeFile(targetFile, buildTemplate(domain), "utf-8");

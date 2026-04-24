@@ -28,24 +28,49 @@ function parseFlags(args: string[]): Record<string, string> {
   return flags;
 }
 
-import { readdirSync, existsSync } from "node:fs";
+import { readdirSync, existsSync, statSync } from "node:fs";
+import { join } from "node:path";
 
-function resolveDefaultFile(): string {
-  // Legacy fallback
-  if (existsSync("rulespec.yaml")) return "rulespec.yaml";
-  // Scan for *.rulespec.yaml
+function findRulespecFiles(): string[] {
+  const found: string[] = [];
+
+  // New layout: skills/<domain>/rulespec.yaml
   try {
-    const files = readdirSync(".").filter((f) =>
-      f.endsWith(".rulespec.yaml"),
-    );
-    if (files.length === 1) return files[0];
-    if (files.length > 1) {
-      console.error(
-        `Multiple rulespec files found: ${files.join(", ")}\nUse --file to specify which one.`,
-      );
-      process.exit(1);
+    const skillDirs = readdirSync("skills").filter((d) => {
+      try {
+        return statSync(join("skills", d)).isDirectory();
+      } catch {
+        return false;
+      }
+    });
+    for (const d of skillDirs) {
+      const p = join("skills", d, "rulespec.yaml");
+      if (existsSync(p)) found.push(p);
     }
   } catch {}
+
+  // Legacy: *.rulespec.yaml at cwd
+  try {
+    for (const f of readdirSync(".")) {
+      if (f.endsWith(".rulespec.yaml")) found.push(f);
+    }
+  } catch {}
+
+  // Legacy: rulespec.yaml at cwd
+  if (existsSync("rulespec.yaml")) found.push("rulespec.yaml");
+
+  return found;
+}
+
+function resolveDefaultFile(): string {
+  const files = findRulespecFiles();
+  if (files.length === 1) return files[0];
+  if (files.length > 1) {
+    console.error(
+      `Multiple rulespec files found: ${files.join(", ")}\nUse --file to specify which one.`,
+    );
+    process.exit(1);
+  }
   return "rulespec.yaml"; // will fail with helpful "file not found" later
 }
 
@@ -56,7 +81,7 @@ Usage:
   rulespec <command> [options]
 
 Commands:
-  init                    Create a {domain}.rulespec.yaml file (--domain required)
+  init                    Scaffold skills/{domain}/rulespec.yaml (--domain required)
   set-domain <domain>     Set the domain name
   add                     Add a new rule
   edit <id>               Modify an existing rule
@@ -71,10 +96,10 @@ Commands:
   compile [id]            Regenerate prompts and print markdown to stdout
   validate                Validate the rulespec file
   replace                 Find and replace text in rulespec.yaml (validates + recompiles)
-  emit                    Emit all *.rulespec.yaml to skills/{domain}/SKILL.md
+  emit                    Compile rulespec.yaml sources to skills/{domain}/SKILL.md
 
 Options:
-  --file <path>           Path to rulespec file (auto-detected from *.rulespec.yaml)
+  --file <path>           Path to rulespec file (auto-detected from skills/*/rulespec.yaml)
   --help                  Show this help message
 
 Init options:

@@ -16,15 +16,26 @@ Adding a rule to a system prompt shouldn't risk invalidating the ones that are a
 
 rulespec treats each rule as an independent, validated unit. Add, edit, or remove one rule via CLI — the rest stay untouched. The output is a structured SKILL.md that any AI agent can load.
 
-**IMPORTANT: Always use the `rulespec` CLI to modify rules, sources, and examples. Never edit emitted SKILL.md files directly — they are generated and will be overwritten.** For complex structures (source schemas, nested example data), you may edit `rulespec.yaml` directly, but always run `rulespec validate` afterward.
+**IMPORTANT: Always use the `rulespec` CLI to modify rules, sources, and examples. Never edit emitted SKILL.md files directly — they are generated and will be overwritten.** For complex structures (source schemas, nested example data), you may edit the source `rulespec.yaml` directly, but always run `rulespec validate` afterward.
 
 All commands use `npx rulespec` — no global install needed. npx downloads and runs it automatically.
+
+## Layout
+
+Each domain lives in its own skill folder:
+
+```
+skills/
+  invoice-processing/
+    rulespec.yaml   ← authored source
+    SKILL.md        ← emitted, agent-loadable (do not edit)
+```
 
 ## CLI commands
 
 ### Setup
 ```bash
-rulespec init --domain "invoice processing"   # Create rulespec.yaml with domain
+rulespec init --domain "invoice processing"   # Scaffold skills/{domain}/rulespec.yaml
 rulespec set-domain "customer support"         # Change the domain
 ```
 
@@ -80,7 +91,7 @@ rulespec emit --include-examples true          # Include examples in output
 rulespec emit --outdir <path>                  # Custom output dir (default: skills)
 ```
 
-All commands accept `--file <path>` to specify a different file (default: `rulespec.yaml`).
+All commands accept `--file <path>` to specify a different file (auto-detected from `skills/*/rulespec.yaml`).
 
 ## File format
 
@@ -116,13 +127,13 @@ examples:                             # optional — end-to-end golden standards
 
 ## Workflow
 
-1. `rulespec init --domain "my domain"` to create the file
+1. `rulespec init --domain "my domain"` scaffolds `skills/{domain}/rulespec.yaml`
 2. Add sources with `rulespec add-source`
 3. Add rules with `rulespec add`
 4. Add examples with `rulespec add-example`
 5. `rulespec validate` to check for errors
 6. `rulespec compile` to preview compiled prompts
-7. `rulespec emit` to generate `skills/{domain}/SKILL.md`
+7. `rulespec emit` to generate `skills/{domain}/SKILL.md` next to the source
 
 ## Programmatic usage
 
@@ -130,14 +141,14 @@ To inject rules into LLM prompts at runtime:
 
 ```typescript
 import { loadRules } from "rulespec";
-const rules = await loadRules("rulespec.yaml");
+const rules = await loadRules("skills/my-domain/rulespec.yaml");
 // rules is a compiled markdown string — inject into any system prompt or API call
 ```
 
 ## Key principles
 
 - Use the CLI for rules, sources, and examples — never edit emitted SKILL.md files
-- For complex source schemas or nested example data, edit `rulespec.yaml` directly + run `rulespec validate`
+- For complex source schemas or nested example data, edit the source `rulespec.yaml` directly + run `rulespec validate`
 - `rulespec replace` is a safe find-and-replace: validates and recompiles after every change
 - One rule, one change — editing a rule only affects that rule's compiled output
 - Examples are excluded from emitted SKILL.md by default (they may contain sensitive data)

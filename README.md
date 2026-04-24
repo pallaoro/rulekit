@@ -15,6 +15,7 @@ rulespec treats each rule as an independent, validated unit. Add, edit, or remov
 
 ```bash
 npx rulespec init --domain "customer support"
+# → skills/customer-support/rulespec.yaml
 
 npx rulespec add --id refund-policy \
   --rule "Refunds allowed within 30 days for unused items" \
@@ -29,6 +30,8 @@ npx rulespec add --id escalation \
 npx rulespec emit
 # → skills/customer-support/SKILL.md
 ```
+
+Each domain lives in its own skill folder — the authored `rulespec.yaml` source and the emitted `SKILL.md` sit side by side, so the folder is a self-contained, agent-loadable skill.
 
 No global install needed — `npx` downloads and runs it automatically.
 
@@ -52,7 +55,7 @@ This installs the rulespec skill into your agent so it knows how to use the CLI 
 A rulespec file is deliberately simple. Business rules are data, not prose buried in a system prompt:
 
 ```yaml
-# rulespec.yaml
+# skills/invoice-processing/rulespec.yaml
 schema: rulespec/v1
 domain: "invoice processing"
 
@@ -191,17 +194,19 @@ rulespec emit --include-examples true  # Include examples in output
 rulespec emit --outdir <path>          # Custom output directory (default: skills)
 ```
 
-All commands accept `--file <path>` (default: `rulespec.yaml`).
+All commands accept `--file <path>`. When omitted, rulespec auto-detects `skills/*/rulespec.yaml`.
 
 ## Output
 
-`rulespec emit` generates a SKILL.md in the skills directory:
+Each domain is a self-contained skill folder — authored source and emitted output live together:
 
 ```
 skills/
   invoice-processing/
-    SKILL.md
+    rulespec.yaml   ← authored source
+    SKILL.md        ← emitted (agent-loadable)
   customer-support/
+    rulespec.yaml
     SKILL.md
 ```
 
@@ -236,7 +241,7 @@ Use rulespec as a library to inject rules into LLM prompts at runtime:
 import { loadRules } from "rulespec";
 
 // Load and compile rules into a markdown string
-const rules = await loadRules("rulespec.yaml");
+const rules = await loadRules("skills/customer-support/rulespec.yaml");
 
 // Inject into your LLM call
 const response = await llm.chat({
