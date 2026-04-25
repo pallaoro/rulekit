@@ -22,22 +22,33 @@ All commands use `npx rulespec` — no global install needed. npx downloads and 
 
 ## Layout
 
-Each domain lives in its own skill folder:
+Each domain lives in its own skill folder. By default it lands under `skills/`; with `-a <agent>` it lands in that agent's skills directory instead:
 
 ```
-skills/
+skills/                       ← default
   invoice-processing/
     rulespec.yaml   ← authored source
     SKILL.md        ← emitted, agent-loadable (do not edit)
+
+.claude/skills/               ← rulespec init -a claude-code
+  customer-support/
+    rulespec.yaml
+    SKILL.md
 ```
 
 ## CLI commands
 
 ### Setup
 ```bash
-rulespec init --domain "invoice processing"   # Scaffold skills/{domain}/rulespec.yaml
-rulespec set-domain "customer support"         # Change the domain
+rulespec init --domain "invoice processing"                  # → skills/invoice-processing/
+rulespec init --domain "invoice processing" -a claude-code   # → .claude/skills/invoice-processing/
+rulespec init --domain "invoice processing" -a claude-code -g # → ~/.claude/skills/invoice-processing/
+rulespec set-domain "customer support"                       # Change the domain
 ```
+
+Supported agents for `-a`: `claude-code`, `cursor`, `openclaw`, `codex`, `opencode`, `windsurf`, `amp`, `augment`, `gemini-cli`, `github-copilot`. Anywhere else: pass `--outdir <path>`.
+
+Once set at init, every other command auto-discovers the source — no need to repeat `-a`.
 
 ### Rules
 ```bash

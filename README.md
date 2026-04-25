@@ -35,6 +35,28 @@ Each domain lives in its own skill folder — the authored `rulespec.yaml` sourc
 
 No global install needed — `npx` downloads and runs it automatically.
 
+### Target a specific agent
+
+Pass `-a <agent>` once at init and the skill folder lands where that agent looks. Every later command (`add`, `edit`, `emit`, …) auto-discovers it — no need to repeat the flag:
+
+```bash
+# Project-scoped — committed with your repo
+npx rulespec init --domain "customer support" -a claude-code
+# → .claude/skills/customer-support/
+
+# User-global — shared across all your projects
+npx rulespec init --domain "customer support" -a claude-code -g
+# → ~/.claude/skills/customer-support/
+```
+
+Supported agents: `claude-code`, `cursor`, `openclaw`, `codex`, `opencode`, `windsurf`, `amp`, `augment`, `gemini-cli`, `github-copilot`. Anywhere else: use `--outdir <path>`.
+
+You can also override the destination per-emit:
+
+```bash
+npx rulespec emit -a cursor    # write SKILL.md to .agents/skills/<domain>/ instead
+```
+
 ## Install as an agent skill
 
 ```bash
@@ -198,13 +220,15 @@ All commands accept `--file <path>`. When omitted, rulespec auto-detects `skills
 
 ## Output
 
-Each domain is a self-contained skill folder — authored source and emitted output live together:
+Each domain is a self-contained skill folder — authored source and emitted output live together. The folder lives wherever the target agent looks (or under `skills/` by default):
 
 ```
-skills/
+skills/                       ← default, no agent specified
   invoice-processing/
     rulespec.yaml   ← authored source
     SKILL.md        ← emitted (agent-loadable)
+
+.claude/skills/               ← rulespec init -a claude-code
   customer-support/
     rulespec.yaml
     SKILL.md

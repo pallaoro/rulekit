@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { resolveAgentDir } from "../agents.js";
 
 function slugify(domain: string): string {
   return domain
@@ -30,13 +31,30 @@ export async function init(
 
   if (!domain) {
     console.error(
-      'Usage: rulespec init --domain "invoice processing"',
+      'Usage: rulespec init --domain "invoice processing" [-a <agent>] [-g]',
     );
     process.exit(1);
   }
 
   const slug = slugify(domain);
-  const skillDir = join("skills", slug);
+  const global = flags.global === "true";
+
+  let baseDir: string;
+  if (flags.agent) {
+    try {
+      baseDir = resolveAgentDir(flags.agent, global);
+    } catch (err) {
+      console.error((err as Error).message);
+      process.exit(1);
+    }
+  } else if (global) {
+    console.error("--global requires --agent <name>");
+    process.exit(1);
+  } else {
+    baseDir = "skills";
+  }
+
+  const skillDir = join(baseDir, slug);
   const targetFile = flags.file ? file : join(skillDir, "rulespec.yaml");
 
   if (existsSync(targetFile)) {

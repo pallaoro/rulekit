@@ -17,11 +17,24 @@ import { replaceCmd } from "./commands/replace.js";
 import { addRuleExampleCmd } from "./commands/add-rule-example.js";
 import { removeRuleExampleCmd } from "./commands/remove-rule-example.js";
 
+const SHORT_ALIASES: Record<string, string> = { a: "agent", g: "global" };
+const BOOLEAN_FLAGS = new Set(["global"]);
+
 function parseFlags(args: string[]): Record<string, string> {
   const flags: Record<string, string> = {};
   for (let i = 0; i < args.length; i++) {
-    if (args[i].startsWith("--") && i + 1 < args.length) {
-      flags[args[i].slice(2)] = args[i + 1];
+    const arg = args[i];
+    let key: string | null = null;
+    if (arg.startsWith("--")) {
+      key = arg.slice(2);
+    } else if (arg.length === 2 && arg.startsWith("-")) {
+      key = SHORT_ALIASES[arg.slice(1)] ?? arg.slice(1);
+    }
+    if (!key) continue;
+    if (BOOLEAN_FLAGS.has(key)) {
+      flags[key] = "true";
+    } else if (i + 1 < args.length) {
+      flags[key] = args[i + 1];
       i++;
     }
   }
@@ -30,36 +43,46 @@ function parseFlags(args: string[]): Record<string, string> {
 
 import { readdirSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { knownAgentDirs } from "./agents.js";
 
-function findRulespecFiles(): string[] {
-  const found: string[] = [];
-
-  // New layout: skills/<domain>/rulespec.yaml
+function scanSkillsDir(baseDir: string, found: Set<string>): void {
   try {
-    const skillDirs = readdirSync("skills").filter((d) => {
+    const entries = readdirSync(baseDir);
+    for (const d of entries) {
+      const sub = join(baseDir, d);
       try {
-        return statSync(join("skills", d)).isDirectory();
+        if (!statSync(sub).isDirectory()) continue;
       } catch {
-        return false;
+        continue;
       }
-    });
-    for (const d of skillDirs) {
-      const p = join("skills", d, "rulespec.yaml");
-      if (existsSync(p)) found.push(p);
+      const p = join(sub, "rulespec.yaml");
+      if (existsSync(p)) found.add(p);
     }
   } catch {}
+}
+
+function findRulespecFiles(): string[] {
+  const found = new Set<string>();
+  const { project, global } = knownAgentDirs();
+
+  // Default + every known agent's project skills dir
+  scanSkillsDir("skills", found);
+  for (const dir of project) scanSkillsDir(dir, found);
+
+  // Every known agent's global skills dir
+  for (const dir of global) scanSkillsDir(dir, found);
 
   // Legacy: *.rulespec.yaml at cwd
   try {
     for (const f of readdirSync(".")) {
-      if (f.endsWith(".rulespec.yaml")) found.push(f);
+      if (f.endsWith(".rulespec.yaml")) found.add(f);
     }
   } catch {}
 
   // Legacy: rulespec.yaml at cwd
-  if (existsSync("rulespec.yaml")) found.push("rulespec.yaml");
+  if (existsSync("rulespec.yaml")) found.add("rulespec.yaml");
 
-  return found;
+  return [...found];
 }
 
 function resolveDefaultFile(): string {
@@ -81,7 +104,7 @@ Usage:
   rulespec <command> [options]
 
 Commands:
-  init                    Scaffold skills/{domain}/rulespec.yaml (--domain required)
+  init                    Scaffold a skill folder for {domain} (--domain required)
   set-domain <domain>     Set the domain name
   add                     Add a new rule
   edit <id>               Modify an existing rule
@@ -103,7 +126,11 @@ Options:
   --help                  Show this help message
 
 Init options:
-  --domain <name>         Domain name (required, used as filename)
+  --domain <name>         Domain name (required, used as folder name)
+  -a, --agent <name>      Target agent (e.g. claude-code, cursor, openclaw)
+                          Folder lands in that agent's skills dir instead of skills/
+  -g, --global            Use the agent's user-global skills dir (~/.<agent>/skills)
+                          Requires --agent
 
 Rule options (add / edit):
   --id <id>               Rule id (kebab-case, required for add)
@@ -123,7 +150,10 @@ Example options (add-example):
   --note <text>           Context or comment for the example (optional)
 
 Emit options:
-  --outdir <path>         Output directory (default: skills)
+  (no flags)              Writes SKILL.md right next to the discovered source
+  -a, --agent <name>      Override: write to this agent's skills dir instead
+  -g, --global            With --agent: use the agent's global skills dir
+  --outdir <path>         Override: write to a custom directory
   --include-examples true Include examples in SKILL.md (default: false)
 
 Replace options:
